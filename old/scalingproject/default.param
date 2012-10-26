@@ -1,0 +1,106 @@
+#
+# Procedures
+#
+
+# Specify which main procedures to execute
+todo_import_data = True
+todo_test_assumptions_data = False
+todo_run_anovas_data = False
+
+todo_plot_grand_averages = False
+todo_plot_data_topographies = False
+todo_plot_simulated_noise = False
+        
+todo_plot_simulated_topographies = False
+plot_simulated_topographies_number = 1
+plot_simulated_topographies_subject = None # 'all' or Nonte
+
+todo_examine_noise_data = False
+todo_examine_noise_simulations = True
+todo_browse_simulations = False
+
+todo_run_simulation_experiment_1 = True
+todo_run_simulation_experiment_2 = False
+todo_run_simulation_experiment_3 = False
+todo_run_simulation_experiment_4 = False
+
+# Specify whether to reuse previously simulated generators and noise for
+# running multiple differerent analyses
+todo_reuse = True
+        
+# Specify which helper procedures to execute
+todo_debug = False
+todo_collect = True
+todo_import_show = True
+
+#
+# Noise/variability
+#
+
+# Type of noise
+todo_noise_type_normal_only = True
+todo_noise_type_constant_and_normal = False
+todo_noise_type_topographic_and_normal = False
+        
+# Variability model
+todo_variability_scaling = True
+todo_variability_gen_amplitude = False
+todo_variability_gen_location = False # Not implemented yet.
+
+# Noise parameters
+normal_noise_amplitude = 2.0 # MSc value: 3.28
+topographic_noise_amplitude = 1.0 # MSc value: 1.0
+constant_noise_amplitude = -2.5
+generator_magnitude_stddev = 2000 # 1732 # 1800.28
+
+#
+# Generator simulation
+#
+
+# Generator parameters
+limits_number = (1, 5)
+limits_depth = (4.49, 7.05)
+limits_orientation = (0, 1.57079633)
+limits_magnitude = (115.9194244299, 1150.9194244299)
+final_magnitude = 3.5
+
+# Experiment-specific generator parameters
+experiment_1_magnitude_multiplier = 2
+experiment_2_limits_number = (2, 5)
+
+#
+# OTHER
+# 
+
+# Other simulation parameters
+number_of_subjects = 16
+number_of_simulations = 1000
+
+# Are source configurations in all simulations for one experiment different or
+# same?
+todo_configurations_random = True
+todo_configurations_uandk = True
+
+# ANOVA electrode factor or hemispheres/sites/location?
+todo_anova_electrodes = False
+todo_anova_hsl = True
+
+# ANOVA electrode factor choice
+# (9) with midline electrodes (SUITABLE ONLY FOR todo_anova_electrodes)
+#hemispheres = [0, 1, 2]
+#locations = [1, 3, 5]
+#sites = [0, 3]
+# 2x3x2 (12) (SUITABLE FOR BOTH)
+#hemispheres = [1, 2]
+#sites = [1, 3]
+#locations = [1, 3, 5]
+# 2x5x3 (30) (SUITABLE ONLY FOR todo_anova_hsl, unless more than ~34 subjects!)
+hemispheres = [1, 2]
+sites = [1, 2, 3]
+locations = [1, 2, 3, 4, 5]
+
+# Reference electrode(s)
+todo_reference_none = True
+todo_reference_left_mastoid = False
+todo_reference_average_mastoid = False
+todo_reference_average = False

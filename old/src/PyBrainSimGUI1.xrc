@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+    <object class="wxFrame" name="menuFrame">
+        <style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
+        <size>449,450</size>
+        <title>PyBrainSim: Choose example simulation</title>
+        <object class="wxPanel" name="menuPanel">
+            <style>wxTAB_TRAVERSAL</style>
+            <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton1">
+                        <label>Example dummy simulation</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton2">
+                        <label>Number generator and stimuli</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton3">
+                        <label>Two number generators and stimuli</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton4">
+                        <label>Sine generator and stimuli</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton5">
+                        <label>Random sine generators and stimuli</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton6">
+                        <label>Sine generator, stimuli and two recording sites</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton7">
+                        <label>Dummy 3D head model</label>
+                        <default>0</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton8">
+                        <label>Neural mass model of a single cortical area</label>
+                        <default>1</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL|wxEXPAND</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButton9">
+                        <label>Dipole sources in a conducting sphere</label>
+                        <default>1</default>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxEXPAND | wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticLine" name="m_staticline2">
+                        <style>wxLI_HORIZONTAL</style>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <option>0</option>
+                    <flag>wxALL|wxALIGN_CENTER_HORIZONTAL</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="menuButtonQuit">
+                        <label>Quit</label>
+                        <default>0</default>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+</resource>
+
