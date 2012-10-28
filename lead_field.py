@@ -8,6 +8,7 @@ sys.path.insert(0, 'old/scalingproject')
 sys.path.insert(0, 'old/src')
 from topographicmap import read_electrode_locations
 
+@profile
 def calculate_lead_field(gen_conf):
     # Reading in electrode locations from external file electrodeLocations.elp
     [el, el_x, el_y, el_thetas, el_phis] = read_electrode_locations()
