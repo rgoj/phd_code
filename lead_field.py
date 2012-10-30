@@ -82,21 +82,12 @@ def calculate_lead_field(gen_conf):
         xyz_el[i_el,0] = radius * sin(el_theta) * cos(el_phi);
         xyz_el[i_el,1] = radius * sin(el_theta) * sin(el_phi);
         xyz_el[i_el,2] = radius * cos(el_theta);
-            
+           
     for i_el in range(n_el):
         for i_gen in range(n_gen):
             #
             # Infinite homogeneous conductor
             #
-            # Calculating the coordinates of the electrode in the coordinates associated with the dipole
-            #xyz_el_dipole = xyz_el - xyz_dipole[i_gen,:];
-            
-            # Calculating the distance between the dipole and the electrode
-            #distance = 0;
-            #distance += pow(xyz_el_dipole[0],2.0)
-            #distance += pow(xyz_el_dipole[1],2.0)
-            #distance += pow(xyz_el_dipole[2],2.0)
-            #distance = sqrt(distance)
             distance = norm(xyz_el[i_el,:] - xyz_dipole[i_gen,:])
 
             #
