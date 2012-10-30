@@ -4,6 +4,7 @@ import sys
 
 from numpy import arange, array, ones, identity, dot, zeros, sin, cos, pi, sqrt, sum, arccos
 from numpy.linalg import norm
+from scipy.spatial.distance import cdist
 
 sys.path.insert(0, 'old/scalingproject')
 sys.path.insert(0, 'old/src')
@@ -82,14 +83,11 @@ def calculate_lead_field(gen_conf):
         xyz_el[i_el,0] = radius * sin(el_theta) * cos(el_phi);
         xyz_el[i_el,1] = radius * sin(el_theta) * sin(el_phi);
         xyz_el[i_el,2] = radius * cos(el_theta);
-           
+ 
+    distance = cdist(xyz_el, xyz_dipole)
+    
     for i_el in range(n_el):
         for i_gen in range(n_gen):
-            #
-            # Infinite homogeneous conductor
-            #
-            distance = norm(xyz_el[i_el,:] - xyz_dipole[i_gen,:])
-
             #
             # Bounded spherical conductor
             # Brody 1973
@@ -98,12 +96,12 @@ def calculate_lead_field(gen_conf):
 
             field_vector = zeros(3);
             for i in range(3):
-                field_vector[i] = 2*(xyz_el[i_el,i] - xyz_dipole[i_gen,i])/pow(distance,2.0)
+                field_vector[i] = 2*(xyz_el[i_el,i] - xyz_dipole[i_gen,i])/pow(distance[i_el,i_gen],2.0)
                 field_vector[i] += (1/pow(radius,2.0)) * (xyz_el[i_el,i] +
                                                           (xyz_el[i_el,i] *
                                                            r_cos_phi - radius *
-                                                           xyz_dipole[i_gen,i])/(distance + radius - r_cos_phi))
-                field_vector[i] = field_vector[i] / 4 / pi / sigma / distance
+                                                           xyz_dipole[i_gen,i])/(distance[i_el,i_gen] + radius - r_cos_phi))
+                field_vector[i] = field_vector[i] / 4 / pi / sigma / distance[i_el,i_gen]
             
             lead_field_brody_1973[i_el, i_gen] = dot(field_vector,xyz_orientation[i_gen,:])
     
