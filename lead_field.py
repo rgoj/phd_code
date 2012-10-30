@@ -71,16 +71,19 @@ def calculate_lead_field(gen_conf):
         # Rotating orientation to translated dipole coordinates
         xyz_orientation[i_gen,:] = dot(rotation_matrix,xyz_orientation_rotated)
 
+    # Coordinates of the electrodes (in the frame of reference associated with
+    # the center of the head)
+    xyz_el = zeros((n_el,3))
     for i_el in range(n_el):
         # Calculating the coordinates of the electrode in the Cartesian coordinates associated with the head
         # The X axis points towards the right ear, while the Y axis points towards the front
         el_theta = el_thetas[i_el]
         el_phi = el_phis[i_el]
-        xyz_el = zeros(3);
-        xyz_el[0] = radius * sin(el_theta) * cos(el_phi);
-        xyz_el[1] = radius * sin(el_theta) * sin(el_phi);
-        xyz_el[2] = radius * cos(el_theta);
+        xyz_el[i_el,0] = radius * sin(el_theta) * cos(el_phi);
+        xyz_el[i_el,1] = radius * sin(el_theta) * sin(el_phi);
+        xyz_el[i_el,2] = radius * cos(el_theta);
             
+    for i_el in range(n_el):
         for i_gen in range(n_gen):
             #
             # Infinite homogeneous conductor
@@ -94,19 +97,19 @@ def calculate_lead_field(gen_conf):
             #distance += pow(xyz_el_dipole[1],2.0)
             #distance += pow(xyz_el_dipole[2],2.0)
             #distance = sqrt(distance)
-            distance = norm(xyz_el - xyz_dipole[i_gen,:])
+            distance = norm(xyz_el[i_el,:] - xyz_dipole[i_gen,:])
 
             #
             # Bounded spherical conductor
             # Brody 1973
             #
-            r_cos_phi = dot(xyz_el, xyz_dipole[i_gen,:]) / radius
+            r_cos_phi = dot(xyz_el[i_el,:], xyz_dipole[i_gen,:]) / radius
 
             field_vector = zeros(3);
             for i in range(3):
-                field_vector[i] = 2*(xyz_el[i] - xyz_dipole[i_gen,i])/pow(distance,2.0)
-                field_vector[i] += (1/pow(radius,2.0)) * (xyz_el[i] +
-                                                          (xyz_el[i] *
+                field_vector[i] = 2*(xyz_el[i_el,i] - xyz_dipole[i_gen,i])/pow(distance,2.0)
+                field_vector[i] += (1/pow(radius,2.0)) * (xyz_el[i_el,i] +
+                                                          (xyz_el[i_el,i] *
                                                            r_cos_phi - radius *
                                                            xyz_dipole[i_gen,i])/(distance + radius - r_cos_phi))
                 field_vector[i] = field_vector[i] / 4 / pi / sigma / distance
