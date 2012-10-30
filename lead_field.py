@@ -27,25 +27,28 @@ def calculate_lead_field(gen_conf):
     # The number of electrodes and generators defines the size of the lead field matrix
     lead_field_brody_1973 = zeros((n_el,n_gen))
 
-    # Coordinates of each dipole
-    xyz_orientation_dipole = []
-    xyz_dipole_head = zeros((n_gen,3))
+    # Coordinates of each dipole in the frame of reference associated with the
+    # head and the orienation of the dipole in the frame of reference
+    # associated with the dipole, with axes parallel to the head frame of
+    # reference.
+    xyz_dipole = zeros((n_gen,3))
+    xyz_orientation = zeros((n_gen,3))
     for i_gen in range(n_gen):
         # Calculating the coordinates of the dipole in the Cartesian coordinates associated with the head
         dipole_radius = radius - gen_conf[i_gen]['depth']
         dipole_theta = gen_conf[i_gen]['theta']
         dipole_phi = gen_conf[i_gen]['phi']
-        xyz_dipole_head[i_gen,0] = dipole_radius * sin(dipole_theta) * cos(dipole_phi);
-        xyz_dipole_head[i_gen,1] = dipole_radius * sin(dipole_theta) * sin(dipole_phi);
-        xyz_dipole_head[i_gen,2] = dipole_radius * cos(dipole_theta);
+        xyz_dipole[i_gen,0] = dipole_radius * sin(dipole_theta) * cos(dipole_phi);
+        xyz_dipole[i_gen,1] = dipole_radius * sin(dipole_theta) * sin(dipole_phi);
+        xyz_dipole[i_gen,2] = dipole_radius * cos(dipole_theta);
             
         # The Orientation vector
         orientation_theta = gen_conf[i_gen]['orientation']
         orientation_phi = gen_conf[i_gen]['orientation_phi']
-        xyz_orientation_dipole_rotated = zeros(3);
-        xyz_orientation_dipole_rotated[0] = sin(orientation_theta) * cos(orientation_phi);
-        xyz_orientation_dipole_rotated[1] = sin(orientation_theta) * sin(orientation_phi);
-        xyz_orientation_dipole_rotated[2] = cos(orientation_theta);
+        xyz_orientation_rotated = zeros(3);
+        xyz_orientation_rotated[0] = sin(orientation_theta) * cos(orientation_phi);
+        xyz_orientation_rotated[1] = sin(orientation_theta) * sin(orientation_phi);
+        xyz_orientation_rotated[2] = cos(orientation_theta);
         
         # Rotation matrix for translating the coordinates in the dipole frame of reference to the
         # coordinates associated with the dipole parallel to the head coordinates.
@@ -65,26 +68,25 @@ def calculate_lead_field(gen_conf):
         rotation_matrix[2,1] = -sin(dipole_theta)
         rotation_matrix[2,2] = cos(dipole_theta)
             
-        # Rotating Orientation to translated dipole coordinates
-        xyz_orientation_dipole.append(dot(rotation_matrix,xyz_orientation_dipole_rotated))
-
+        # Rotating orientation to translated dipole coordinates
+        xyz_orientation[i_gen,:] = dot(rotation_matrix,xyz_orientation_rotated)
 
     for i_el in range(n_el):
         # Calculating the coordinates of the electrode in the Cartesian coordinates associated with the head
         # The X axis points towards the right ear, while the Y axis points towards the front
         el_theta = el_thetas[i_el]
         el_phi = el_phis[i_el]
-        xyz_el_head = zeros(3);
-        xyz_el_head[0] = radius * sin(el_theta) * cos(el_phi);
-        xyz_el_head[1] = radius * sin(el_theta) * sin(el_phi);
-        xyz_el_head[2] = radius * cos(el_theta);
+        xyz_el = zeros(3);
+        xyz_el[0] = radius * sin(el_theta) * cos(el_phi);
+        xyz_el[1] = radius * sin(el_theta) * sin(el_phi);
+        xyz_el[2] = radius * cos(el_theta);
             
         for i_gen in range(n_gen):
             #
             # Infinite homogeneous conductor
             #
             # Calculating the coordinates of the electrode in the coordinates associated with the dipole
-            #xyz_el_dipole = xyz_el_head - xyz_dipole_head[i_gen,:];
+            #xyz_el_dipole = xyz_el - xyz_dipole[i_gen,:];
             
             # Calculating the distance between the dipole and the electrode
             #distance = 0;
@@ -92,23 +94,23 @@ def calculate_lead_field(gen_conf):
             #distance += pow(xyz_el_dipole[1],2.0)
             #distance += pow(xyz_el_dipole[2],2.0)
             #distance = sqrt(distance)
-            distance = norm(xyz_el_head - xyz_dipole_head[i_gen,:])
+            distance = norm(xyz_el - xyz_dipole[i_gen,:])
 
             #
             # Bounded spherical conductor
             # Brody 1973
             #
-            r_cos_phi = dot(xyz_el_head, xyz_dipole_head[i_gen,:]) / radius
+            r_cos_phi = dot(xyz_el, xyz_dipole[i_gen,:]) / radius
 
             field_vector = zeros(3);
             for i in range(3):
-                field_vector[i] = 2*(xyz_el_head[i] - xyz_dipole_head[i_gen,i])/pow(distance,2.0)
-                field_vector[i] += (1/pow(radius,2.0)) * (xyz_el_head[i] +
-                                                          (xyz_el_head[i] *
+                field_vector[i] = 2*(xyz_el[i] - xyz_dipole[i_gen,i])/pow(distance,2.0)
+                field_vector[i] += (1/pow(radius,2.0)) * (xyz_el[i] +
+                                                          (xyz_el[i] *
                                                            r_cos_phi - radius *
-                                                           xyz_dipole_head[i_gen,i])/(distance + radius - r_cos_phi))
+                                                           xyz_dipole[i_gen,i])/(distance + radius - r_cos_phi))
                 field_vector[i] = field_vector[i] / 4 / pi / sigma / distance
             
-            lead_field_brody_1973[i_el, i_gen] = dot(field_vector,xyz_orientation_dipole[i_gen])
+            lead_field_brody_1973[i_el, i_gen] = dot(field_vector,xyz_orientation[i_gen,:])
     
     return lead_field_brody_1973
