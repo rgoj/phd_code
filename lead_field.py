@@ -3,12 +3,13 @@ from __future__ import division
 import sys
 
 from numpy import arange, array, ones, identity, dot, zeros, sin, cos, pi, sqrt, sum, arccos
+from numpy.linalg import norm
 
 sys.path.insert(0, 'old/scalingproject')
 sys.path.insert(0, 'old/src')
 from topographicmap import read_electrode_locations
 
-#@profile
+@profile
 def calculate_lead_field(gen_conf):
     # Reading in electrode locations from external file electrodeLocations.elp
     [el, el_x, el_y, el_thetas, el_phis] = read_electrode_locations()
@@ -83,15 +84,16 @@ def calculate_lead_field(gen_conf):
             # Infinite homogeneous conductor
             #
             # Calculating the coordinates of the electrode in the coordinates associated with the dipole
-            xyz_el_dipole = xyz_el_head - xyz_dipole_head[i_gen,:];
+            #xyz_el_dipole = xyz_el_head - xyz_dipole_head[i_gen,:];
             
             # Calculating the distance between the dipole and the electrode
-            distance = 0;
-            distance += pow(xyz_el_dipole[0],2.0)
-            distance += pow(xyz_el_dipole[1],2.0)
-            distance += pow(xyz_el_dipole[2],2.0)
-            distance = sqrt(distance)
-            
+            #distance = 0;
+            #distance += pow(xyz_el_dipole[0],2.0)
+            #distance += pow(xyz_el_dipole[1],2.0)
+            #distance += pow(xyz_el_dipole[2],2.0)
+            #distance = sqrt(distance)
+            distance = norm(xyz_el_head - xyz_dipole_head[i_gen,:])
+
             #
             # Bounded spherical conductor
             # Brody 1973
