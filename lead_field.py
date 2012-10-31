@@ -104,8 +104,9 @@ def calculate_lead_field(gen_conf):
                                                           (xyz_el[i_el,i] *
                                                            r_cos_phi[i_el,i_gen] - radius *
                                                            xyz_dipole[i_gen,i])/(distance[i_el,i_gen] + radius - r_cos_phi[i_el,i_gen]))
-                field_vector[i_el,i_gen,i] = field_vector[i_el,i_gen,i] / 4 / pi / sigma / distance[i_el,i_gen]
                 
-    lead_field_brody_1973 = sum(field_vector*(xyz_orientation[newaxis,:,:]+zeros((n_el,n_gen,3))),2)
+    field_vector /=  4 * pi * sigma * distance[:,:,newaxis]
+    
+    lead_field_brody_1973 = sum(field_vector*xyz_orientation[newaxis,:,:],2)
     
     return lead_field_brody_1973
