@@ -88,23 +88,16 @@ def calculate_lead_field(gen_conf):
     distance = cdist(xyz_el, xyz_dipole)
     r_cos_phi = dot(xyz_el, transpose(xyz_dipole)) / radius
 
-    field_vector = zeros((n_el,n_gen,3))
-    field_vector = (xyz_el[:,newaxis,:] + zeros((n_el,n_gen,3))) -\
-                   (xyz_dipole[newaxis,:,:] + zeros((n_el,n_gen,3)))
+    # Coordinate arrays broadcast to shape of (n_el,n_gen,3) in order to
+    # vectorize all further calculations
+    xyz_el_b = xyz_el[:,newaxis,:] + zeros((n_el,n_gen,3))
+    xyz_dipole_b = xyz_dipole[newaxis,:,:] + zeros((n_el,n_gen,3))
+
+    field_vector = xyz_el_b - xyz_dipole_b
     field_vector = 2*field_vector / (distance**2)[:,:,newaxis]
-    
-    for i_el in range(n_el):
-        for i_gen in range(n_gen):
-            #
-            # Bounded spherical conductor
-            # Brody 1973
-            #
-            for i in range(3):
-                field_vector[i_el,i_gen,i] += (1/pow(radius,2.0)) * (xyz_el[i_el,i] +
-                                                          (xyz_el[i_el,i] *
-                                                           r_cos_phi[i_el,i_gen] - radius *
-                                                           xyz_dipole[i_gen,i])/(distance[i_el,i_gen] + radius - r_cos_phi[i_el,i_gen]))
-                
+    field_vector += (1/(radius**2)) * \
+            ((xyz_el_b * r_cos_phi[:,:,newaxis] - radius * xyz_dipole_b) /\
+             (distance - r_cos_phi + radius)[:,:,newaxis] + xyz_el_b)
     field_vector /=  4 * pi * sigma * distance[:,:,newaxis]
     
     lead_field_brody_1973 = sum(field_vector*xyz_orientation[newaxis,:,:],2)
