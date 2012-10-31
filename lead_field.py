@@ -3,7 +3,7 @@ from __future__ import division
 import sys
 
 from numpy import arange, array, ones, identity, dot, zeros, sin, cos, pi,\
-                  sqrt, sum, arccos, transpose
+                  sqrt, sum, arccos, transpose, newaxis
 from numpy.linalg import norm
 from scipy.spatial.distance import cdist
 
@@ -11,7 +11,7 @@ sys.path.insert(0, 'old/scalingproject')
 sys.path.insert(0, 'old/src')
 from topographicmap import read_electrode_locations
 
-@profile
+#@profile
 def calculate_lead_field(gen_conf):
     # Reading in electrode locations from external file electrodeLocations.elp
     [el, el_x, el_y, el_thetas, el_phis] = read_electrode_locations()
@@ -89,6 +89,10 @@ def calculate_lead_field(gen_conf):
     r_cos_phi = dot(xyz_el, transpose(xyz_dipole)) / radius
 
     field_vector = zeros((n_el,n_gen,3))
+    field_vector = (xyz_el[:,newaxis,:] + zeros((n_el,n_gen,3))) -\
+                   (xyz_dipole[newaxis,:,:] + zeros((n_el,n_gen,3)))
+    field_vector = 2*field_vector / (distance**2)[:,:,newaxis]
+    
     for i_el in range(n_el):
         for i_gen in range(n_gen):
             #
@@ -96,13 +100,12 @@ def calculate_lead_field(gen_conf):
             # Brody 1973
             #
             for i in range(3):
-                field_vector[i_el,i_gen,i] = 2*(xyz_el[i_el,i] - xyz_dipole[i_gen,i])/pow(distance[i_el,i_gen],2.0)
                 field_vector[i_el,i_gen,i] += (1/pow(radius,2.0)) * (xyz_el[i_el,i] +
                                                           (xyz_el[i_el,i] *
                                                            r_cos_phi[i_el,i_gen] - radius *
                                                            xyz_dipole[i_gen,i])/(distance[i_el,i_gen] + radius - r_cos_phi[i_el,i_gen]))
                 field_vector[i_el,i_gen,i] = field_vector[i_el,i_gen,i] / 4 / pi / sigma / distance[i_el,i_gen]
-            
+                
             lead_field_brody_1973[i_el, i_gen] = dot(field_vector[i_el,i_gen,:],xyz_orientation[i_gen,:])
     
     return lead_field_brody_1973
