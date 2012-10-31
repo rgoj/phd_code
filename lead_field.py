@@ -3,7 +3,7 @@ from __future__ import division
 import sys
 
 from numpy import arange, array, ones, identity, dot, zeros, sin, cos, pi,\
-                  sqrt, sum, arccos, transpose, newaxis
+                  sqrt, sum, arccos, transpose, newaxis, tensordot
 from numpy.linalg import norm
 from scipy.spatial.distance import cdist
 
@@ -106,6 +106,6 @@ def calculate_lead_field(gen_conf):
                                                            xyz_dipole[i_gen,i])/(distance[i_el,i_gen] + radius - r_cos_phi[i_el,i_gen]))
                 field_vector[i_el,i_gen,i] = field_vector[i_el,i_gen,i] / 4 / pi / sigma / distance[i_el,i_gen]
                 
-            lead_field_brody_1973[i_el, i_gen] = dot(field_vector[i_el,i_gen,:],xyz_orientation[i_gen,:])
+    lead_field_brody_1973 = sum(field_vector*(xyz_orientation[newaxis,:,:]+zeros((n_el,n_gen,3))),2)
     
     return lead_field_brody_1973
