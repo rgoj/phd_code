@@ -11,20 +11,49 @@ sys.path.insert(0, 'old/scalingproject')
 sys.path.insert(0, 'old/src')
 from topographicmap import read_electrode_locations
 
-#@profile
-def calculate_lead_field(gen_conf):
-    # Reading in electrode locations from external file electrodeLocations.elp
-    [el, el_x, el_y, el_thetas, el_phis] = read_electrode_locations()
 
+@profile
+def calculate_lead_field(gen_conf):
+    radius, xyz_el = initialize_electrode_locations()
+    return calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el)
+
+
+def initialize_electrode_locations():
+    """Reads in electrode locations and transforms them to xyz coordinates, so
+    that this isn't unnecessarily repeated in the main lead_field calculation
+    function if not strictly necessary.
+    """
     # Setting the radius of the head to 11.5 cm
     radius = 11.5
+
+    # Reading in electrode locations from external file electrodeLocations.elp
+    [el, el_x, el_y, el_thetas, el_phis] = read_electrode_locations()
+    
+    # How many electrodes do we have?
+    n_el = len(el)
+    
+    # Coordinates of the electrodes (in the frame of reference associated with
+    # the center of the head)
+    xyz_el = zeros((n_el,3))
+    for i_el in range(n_el):
+        # Calculating the coordinates of the electrode in the Cartesian coordinates associated with the head
+        # The X axis points towards the right ear, while the Y axis points towards the front
+        el_theta = el_thetas[i_el]
+        el_phi = el_phis[i_el]
+        xyz_el[i_el,0] = radius * sin(el_theta) * cos(el_phi);
+        xyz_el[i_el,1] = radius * sin(el_theta) * sin(el_phi);
+        xyz_el[i_el,2] = radius * cos(el_theta);
+
+    return radius, xyz_el
+
+
+def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
+    # Assuming ideal conductivity
+    sigma = 1.0
     
     # How many generators and electrodes do we have?
     n_gen = len(gen_conf)
-    n_el = len(el)
-
-    # Assuming ideal conductivity
-    sigma = 1.0
+    n_el = xyz_el.shape[0]
 
     # The number of electrodes and generators defines the size of the lead field matrix
     lead_field_brody_1973 = zeros((n_el,n_gen))
@@ -73,18 +102,6 @@ def calculate_lead_field(gen_conf):
         # Rotating orientation to translated dipole coordinates
         xyz_orientation[i_gen,:] = dot(rotation_matrix,xyz_orientation_rotated)
 
-    # Coordinates of the electrodes (in the frame of reference associated with
-    # the center of the head)
-    xyz_el = zeros((n_el,3))
-    for i_el in range(n_el):
-        # Calculating the coordinates of the electrode in the Cartesian coordinates associated with the head
-        # The X axis points towards the right ear, while the Y axis points towards the front
-        el_theta = el_thetas[i_el]
-        el_phi = el_phis[i_el]
-        xyz_el[i_el,0] = radius * sin(el_theta) * cos(el_phi);
-        xyz_el[i_el,1] = radius * sin(el_theta) * sin(el_phi);
-        xyz_el[i_el,2] = radius * cos(el_theta);
- 
     distance = cdist(xyz_el, xyz_dipole)
     r_cos_phi = dot(xyz_el, transpose(xyz_dipole)) / radius
 
@@ -103,3 +120,12 @@ def calculate_lead_field(gen_conf):
     lead_field_brody_1973 = sum(field_vector*xyz_orientation[newaxis,:,:],2)
     
     return lead_field_brody_1973
+
+
+class Lead_Field:
+    def __init__(self):
+        self.radius, self.xyz_el = initialize_electrode_locations()
+        
+    def calculate(self, gen_conf):
+        return calculate_lead_field_given_electrodes(gen_conf, self.radius,\
+                                                     self.xyz_el)
