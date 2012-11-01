@@ -10,7 +10,7 @@ sys.path.insert(0, 'briskbrain-code/scalingproject')
 sys.path.insert(0, 'briskbrain-code/src')
 
 from simulation import random_generator_configuration
-from lead_field import calculate_lead_field
+from lead_field import Lead_Field
 from topographicmap import plot_topographic_map
 
 
@@ -46,6 +46,8 @@ class ERP_Model():
         self.n_gen = n_gen
         self.n_sub = n_sub
         self.n_el = 62
+        
+        self.lf = Lead_Field()
 
         self.gen_conf = None
 
@@ -100,7 +102,7 @@ class ERP_Model():
             if topographies:
                 pyplot.figure()
                 plot_topographic_map((self.gen_conf[gen]['magnitude'] *
-                                      calculate_lead_field(
+                                      self.lf.calculate(
                                       [self.gen_conf[gen]]))[:,0])
 
 
@@ -319,7 +321,7 @@ class ERP_Model():
         return bounds
     
     def calculate_lead_field(self):
-        self.lead_field = calculate_lead_field(self.gen_conf)
+        self.lead_field = self.lf.calculate(self.gen_conf)
         self.up_to_date['lead field'] = True
         self.up_to_date['mean'] = False
         self.up_to_date['covariance'] = False

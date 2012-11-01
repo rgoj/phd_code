@@ -12,11 +12,14 @@ sys.path.insert(0, 'old/src')
 from topographicmap import read_electrode_locations
 
 
-@profile
 def calculate_lead_field(gen_conf):
+    """Should be used to calculate lead field when this is done only once,
+    however for better performance when the lead field is to be calculated
+    multiple times, the Lead_Field class should be used, where
+    initialize_electrode_locations() is calculated only once.
+    """
     radius, xyz_el = initialize_electrode_locations()
     return calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el)
-
 
 def initialize_electrode_locations():
     """Reads in electrode locations and transforms them to xyz coordinates, so
@@ -46,8 +49,8 @@ def initialize_electrode_locations():
 
     return radius, xyz_el
 
-
 def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
+    """Actual calculation of lead field."""
     # Assuming ideal conductivity
     sigma = 1.0
     
@@ -123,6 +126,10 @@ def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
 
 
 class Lead_Field:
+    """The Lead_Field class should be used when calculating the lead field
+    multiple times, it's performance is better than calculate_lead_field()
+    because it reads in the electrode locations only once, on initialization.
+    """
     def __init__(self):
         self.radius, self.xyz_el = initialize_electrode_locations()
         
