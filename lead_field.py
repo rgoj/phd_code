@@ -21,7 +21,6 @@ def calculate_lead_field(gen_conf):
     radius, xyz_el = initialize_electrode_locations()
     return calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el)
 
-@profile
 def initialize_electrode_locations():
     """Reads in electrode locations and transforms them to xyz coordinates, so
     that this isn't unnecessarily repeated in the main lead_field calculation
@@ -50,7 +49,6 @@ def initialize_electrode_locations():
 
     return radius, xyz_el
 
-@profile
 def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
     """Actual calculation of lead field."""
     # Assuming ideal conductivity
