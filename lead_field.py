@@ -21,6 +21,7 @@ def calculate_lead_field(gen_conf):
     radius, xyz_el = initialize_electrode_locations()
     return calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el)
 
+@profile
 def initialize_electrode_locations():
     """Reads in electrode locations and transforms them to xyz coordinates, so
     that this isn't unnecessarily repeated in the main lead_field calculation
@@ -49,6 +50,7 @@ def initialize_electrode_locations():
 
     return radius, xyz_el
 
+@profile
 def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
     """Actual calculation of lead field."""
     # Assuming ideal conductivity
@@ -72,9 +74,13 @@ def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
         dipole_radius = radius - gen_conf[i_gen]['depth']
         dipole_theta = gen_conf[i_gen]['theta']
         dipole_phi = gen_conf[i_gen]['phi']
-        xyz_dipole[i_gen,0] = dipole_radius * sin(dipole_theta) * cos(dipole_phi);
-        xyz_dipole[i_gen,1] = dipole_radius * sin(dipole_theta) * sin(dipole_phi);
-        xyz_dipole[i_gen,2] = dipole_radius * cos(dipole_theta);
+        cos_dipole_theta = cos(dipole_theta)
+        sin_dipole_theta = sin(dipole_theta)
+        cos_dipole_phi = cos(dipole_phi)
+        sin_dipole_phi = sin(dipole_phi)
+        xyz_dipole[i_gen,0] = dipole_radius * sin_dipole_theta * cos_dipole_phi
+        xyz_dipole[i_gen,1] = dipole_radius * sin_dipole_theta * sin_dipole_phi
+        xyz_dipole[i_gen,2] = dipole_radius * cos_dipole_theta
             
         # The Orientation vector
         orientation_theta = gen_conf[i_gen]['orientation']
@@ -90,17 +96,17 @@ def calculate_lead_field_given_electrodes(gen_conf, radius, xyz_el):
         dipole_theta = gen_conf[i_gen]['theta']
         dipole_phi = gen_conf[i_gen]['phi']
         # Row 1
-        rotation_matrix[0,0] = sin(dipole_phi)
-        rotation_matrix[0,1] = cos(dipole_theta) * cos(dipole_phi)
-        rotation_matrix[0,2] = sin(dipole_theta) * cos(dipole_phi)
+        rotation_matrix[0,0] = sin_dipole_phi
+        rotation_matrix[0,1] = cos_dipole_theta * cos_dipole_phi
+        rotation_matrix[0,2] = sin_dipole_theta * cos_dipole_phi
         # Row 2
-        rotation_matrix[1,0] = -cos(dipole_phi)
-        rotation_matrix[1,1] = cos(dipole_theta) * sin(dipole_phi)
-        rotation_matrix[1,2] = sin(dipole_theta) * sin(dipole_phi)
+        rotation_matrix[1,0] = -cos_dipole_phi
+        rotation_matrix[1,1] = cos_dipole_theta * sin_dipole_phi
+        rotation_matrix[1,2] = sin_dipole_theta * sin_dipole_phi
         # Row 3
         rotation_matrix[2,0] = 0
-        rotation_matrix[2,1] = -sin(dipole_theta)
-        rotation_matrix[2,2] = cos(dipole_theta)
+        rotation_matrix[2,1] = -sin_dipole_theta
+        rotation_matrix[2,2] = cos_dipole_theta
             
         # Rotating orientation to translated dipole coordinates
         xyz_orientation[i_gen,:] = dot(rotation_matrix,xyz_orientation_rotated)
