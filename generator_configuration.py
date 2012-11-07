@@ -1,5 +1,5 @@
 """
-So far, this only has a random_generator_configuration() function, would it
+So far, this only has a random_generator_placement() function, would it
 make sense to do more?
 """
 
@@ -8,7 +8,6 @@ from __future__ import division
 import sys
 from numpy import pi, array, max, min, mean, power, sqrt
 from numpy.random import randint, uniform
-
 
 
 def random_generator_placement(limits={'n_gen':(1,5),'depth':(4.49,7.05),
