@@ -1,3 +1,10 @@
+"""
+TODO: Describe the brody 1973 paper, explain that we are using a single shell
+model, etc.
+TODO: Write out the equations from brody 1973, once in the docstrings and then
+below to indicate which part of the code does which calculation.
+"""
+
 from __future__ import division
 
 import sys
@@ -7,8 +14,8 @@ from numpy import arange, array, ones, identity, dot, zeros, sin, cos, pi,\
 from numpy.linalg import norm
 from scipy.spatial.distance import cdist
 
-sys.path.insert(0, 'old/scalingproject')
-sys.path.insert(0, 'old/src')
+sys.path.insert(0, 'meetpy/old/scalingproject')
+sys.path.insert(0, 'meetpy/old/src')
 from topographicmap import read_electrode_locations
 
 
