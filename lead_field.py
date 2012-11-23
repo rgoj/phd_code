@@ -14,8 +14,8 @@ from numpy import arange, array, ones, identity, dot, zeros, sin, cos, pi,\
 from numpy.linalg import norm
 from scipy.spatial.distance import cdist
 
-sys.path.insert(0, 'old/scalingproject')
-sys.path.insert(0, 'old/src')
+sys.path.insert(0, 'meetpy/old/scalingproject')
+sys.path.insert(0, 'meetpy/old/src')
 from topographicmap import read_electrode_locations
 
 
