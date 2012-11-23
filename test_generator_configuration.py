@@ -1,8 +1,4 @@
-from nose import with_setup
-from numpy import array_equal
-from numpy.testing import assert_array_equal, assert_array_almost_equal
-
-from lead_field import calculate_lead_field, Lead_Field
+from lead_field import calculate_lead_field
 from generator_configuration import random_generator_placement
 
 
