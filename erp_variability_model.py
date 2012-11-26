@@ -1,0 +1,228 @@
+from numpy import pi, dot, zeros, ndarray, transpose, identity, sqrt
+from numpy.random import multivariate_normal, uniform
+
+from lead_field import Lead_Field
+from generator_configuration import random_generator_placement
+
+
+#TODO sigma should be sigma_sq_ throghout, or var, because it's variance, so
+# sigma squared
+
+
+class ERP_Variability_Model():
+    def __init__(self, n_sub, n_gen, variability_electrodes='none',
+                 variability_generators='none', 
+                 variability_connections='none'):
+        self.n_gen = n_gen # generators
+        self.n_sub = n_sub # subjects
+        self.n_el = 62 # Hard-coded to use a specific electrode set
+        
+        self.up_to_date = {}
+        self.set_parameter_limits()
+        self.gen_conf = None
+        self.lf = Lead_Field()
+
+        self.set_variability_type(variability_electrodes,
+                                  variability_generators,
+                                  variability_connections)
+
+
+    def print_model(self, topographies=False):
+        print('ERP Model Parameters')
+        print('====================')
+        print('Number of generators: ' + str(self.n_gen) + '\n')
+        print('Variability')
+        print('-----------')
+        print('* Electrodes (self.sigma_e)')
+        print self.sigma_e
+        print('* Generators (self.cov_gen)')
+        print self.cov_gen
+        print('* Final covariance matrix (self.cov)')
+        print self.cov
+        for gen in range(self.n_gen):
+            print('\nGenerator ' + str(gen+1))
+            print('-------------------')
+            print('LOCATION, Depth: ' + str(self.gen_conf[gen]['depth']))
+            print('LOCATION, Theta: ' + str(self.gen_conf[gen]['theta']))
+            print('LOCATION, Phi: ' + str(self.gen_conf[gen]['phi']))
+            print('ORIENTATION: ' + str(self.gen_conf[gen]['orientation']))
+            print('ORIENTATION, Phi: ' + str(self.gen_conf[gen]['orientation_phi']))
+            print('MAGNITUDE: ' + str(self.gen_conf[gen]['magnitude']))
+            if topographies:
+                pyplot.figure()
+                plot_topographic_map((self.gen_conf[gen]['magnitude'] *
+                                      self.lf.calculate(
+                                      [self.gen_conf[gen]]))[:,0])
+
+
+    def set_parameter_limits(self):
+        # Parameter bounds for randomizing model parameters
+        self.limits = {}
+        # Location and orientation
+        self.limits['depth']= (4.49,7.05) # roughly the cortex
+        self.limits['phi'] = (0,2*pi)
+        self.limits['theta'] = (0,pi/2)
+        self.limits['orientation'] = (0, pi/2) # cortex
+        self.limits['orientation_phi'] = (0,2*pi)
+        # Magnitude
+        self.limits['magnitude'] = (1, 10000000)
+        # Variability
+        self.limits['generator_variance'] = [0, 1000000]
+        self.limits['electrode_variance'] = [0, 20]
+        # Covariance needs no limits becuase it is limited by the variance of
+        # the two generators in question
+        #self.limits['generator_covariance'] = [0, 1000000]
+        # Constant number of generators
+        self.limits['n_gen'] = (self.n_gen, self.n_gen)
+
+
+    def set_variability_type(self, variability_electrodes, 
+                             variability_generators, variability_connections):
+        if variability_electrodes not in ['constant', 'individual', 'none']:
+            raise ValueError
+        else:
+            self.variability_electrodes = variability_electrodes
+        
+        if variability_generators not in ['constant', 'individual', 'none']:
+            raise ValueError
+        else:
+            self.variability_generators = variability_generators
+        
+        if variability_connections not in ['individual', 'none']:
+            raise ValueError
+        else:
+            self.variability_connections = variability_connections
+
+    
+    def set_gen_conf(self, gen_conf):
+        self.gen_conf = gen_conf
+        self.n_gen = len(gen_conf)
+
+
+    def set_random_locations_orientations(self):
+        self.gen_conf = random_generator_placement(self.limits)
+        self.up_to_date['lead field'] = False
+        self.up_to_date['mean'] = False
+        self.up_to_date['covariance generators'] = False
+        self.up_to_date['covariance'] = False
+
+
+    def set_random_magnitudes(self):
+        # TODO
+        for i in range(self.n_gen):
+            self.gen_conf[i]['magnitude'] = 0
+        self.up_to_date['mean'] = False
+
+
+    def set_random_variability(self):
+        limits = self.limits['electrode_variance']
+        if self.variability_electrodes == 'none':
+            self.sigma_e = 0
+        elif self.variability_electrodes == 'constant':
+            self.sigma_e = limits[0] + uniform(limits[1] - limits[0])
+        elif self.variability_electrodes == 'individual':
+            self.sigma_e = []
+            for i in range(self.n_el):
+                self.sigma_e.append(limits[0] + uniform(limits[1] - limits[0]))
+        
+        limits = self.limits['generator_variance']
+        if self.variability_generators == 'none':
+            self.sigma_g = 0
+        elif self.variability_generators == 'constant':
+            self.sigma_g = limits[0] + uniform(limits[1] - limits[0])
+        elif self.variability_generators == 'individual':
+            self.sigma_g = []
+            for i in range(self.n_gen):
+                self.sigma_g.append(limits[0] + uniform(limits[1] - limits[0]))
+        
+        if self.variability_connections == 'none':
+            self.sigma_c = None
+        elif self.variability_connections == 'individual':
+            self.sigma_c = zeros((self.n_gen, self.n_gen))
+            for row in range(self.n_gen):
+                for column in range(self.n_gen):
+                    if row < column:
+                        sigma_c = uniform(sqrt(self.sigma_g[row] *
+                                               self.sigma_g[column]))
+                        self.sigma_c[row, column] = sigma_c
+                        self.sigma_c[column, row] = sigma_c
+        
+
+    def calculate_lead_field(self):
+        self.lead_field = self.lf.calculate(self.gen_conf)
+        self.up_to_date['lead field'] = True
+        self.up_to_date['mean'] = False
+        self.up_to_date['covariance generators'] = False
+        self.up_to_date['covariance'] = False
+        return self.lead_field
+
+
+    def calculate_mean(self):
+        if not self.up_to_date['lead field']: self.calculate_lead_field()
+        
+        gen_amplitudes = []
+        for i in range(self.n_gen):
+            gen_amplitudes.append(self.gen_conf[i]['magnitude'])
+        self.mean = dot(self.lead_field, gen_amplitudes)
+        
+        self.up_to_date['mean'] = True
+        
+        return self.mean
+
+
+    def calculate_cov_gen(self):
+        if not self.up_to_date['lead field']: self.calculate_lead_field()
+        
+        self.cov_gen = zeros((self.n_gen, self.n_gen))
+        for row in range(self.n_gen):
+            for column in range(self.n_gen):
+                if row == column:
+                    if self.variability_generators == 'individual':
+                        self.cov_gen[row,column] = self.sigma_g[row]
+                    elif self.variability_generators == 'constant':
+                        self.cov_gen[row,column] = self.sigma_g
+                elif column > row:
+                    if self.variability_connections == 'individual':
+                        self.cov_gen[row,column] = self.sigma_c[row,column]
+                        self.cov_gen[column,row] = self.sigma_c[row,column]
+                    elif sefl.variability_connections == 'constant':
+                        self.cov_gen[row,column] = self.sigma_c
+                        self.cov_gen[column,row] = self.sigma_c
+        
+        self.up_to_date['covariance generators'] = True
+        self.up_to_date['covariance'] = False
+
+        return self.cov_gen
+
+
+    def calculate_cov(self):
+        if not self.up_to_date['lead field']: self.calculate_lead_field()
+        if not self.up_to_date['covariance generators']:
+            self.calculate_cov_gen()
+        
+        # TODO: Make it work for individual electrode variance as well
+        self.cov = dot(dot(self.lead_field, self.cov_gen),
+                  transpose(self.lead_field)) + self.sigma_e *\
+                  identity(self.n_el)
+        
+        self.up_to_date['covariance'] = True
+        
+        return self.cov
+
+
+    def simulate(self):
+        self.data = multivariate_normal(self.mean,self.cov,self.n_sub)
+        return self.data
+
+
+    def recalculate_model(self):
+        self.up_to_date['lead field'] = False
+        self.up_to_date['mean'] = False
+        self.up_to_date['covariance generators'] = False
+        self.up_to_date['covariance'] = False
+        
+        self.calculate_lead_field()
+        self.calculate_mean()
+        self.calculate_cov()
+        self.simulate()
+            
