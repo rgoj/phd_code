@@ -394,6 +394,12 @@ def fit_model_to_covariance(cov_data, erp_model, parameter_list,
     fn = lambda parameters: error_cov(cov_data, erp_model, parameter_list,
                                          parameters)
     
+    # DELIBERATELY BROKEN CODE TO MAKE SURE IT'S NEVER RUN
+    
+    Deliberately broken code
+    
+    # End of DELIBERATELY BROKEN CODE
+
     initial_parameters = erp_model.get_parameters(parameter_list)
     if no_bounds:
         print('Running fitting without bounds, was this intended?')
