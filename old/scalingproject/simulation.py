@@ -11,7 +11,8 @@ from __future__ import division
 
 import sys
 from numpy import pi, array, max, min, mean, power, sqrt
-from numpy.random import randint, uniform
+from numpy.random import randint
+from numpy.random import uniform
 
 sys.path.insert(0, '../src')
 from Head import Head
