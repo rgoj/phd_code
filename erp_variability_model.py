@@ -25,6 +25,9 @@ class ERP_Variability_Model():
         self.set_variability_type(variability_electrodes,
                                   variability_generators,
                                   variability_connections)
+        self.sigma_e = 0
+        self.sigma_g = zeros(self.n_gen)
+        self.sigma_c = zeros((self.n_gen, self.n_gen))
 
 
     def print_model(self, topographies=False):
@@ -149,7 +152,7 @@ class ERP_Variability_Model():
         
     def set_random_variability_connections(self):
         if self.variability_connections == 'none':
-            self.sigma_c = None
+            self.sigma_c = zeros((self.n_gen, self.n_gen))
         elif self.variability_connections == 'individual':
             self.sigma_c = zeros((self.n_gen, self.n_gen))
             for row in range(self.n_gen):
@@ -198,9 +201,6 @@ class ERP_Variability_Model():
                     if self.variability_connections == 'individual':
                         self.cov_gen[row,column] = self.sigma_c[row,column]
                         self.cov_gen[column,row] = self.sigma_c[row,column]
-                    elif sefl.variability_connections == 'constant':
-                        self.cov_gen[row,column] = self.sigma_c
-                        self.cov_gen[column,row] = self.sigma_c
         
         self.up_to_date['covariance generators'] = True
         self.up_to_date['covariance'] = False
