@@ -31,6 +31,25 @@ class ERP_Variability_Model_Fit(ERP_Variability_Model):
         self.el_variance_bounds = (None, None)
 
 
+    def set_random_parameters(self, parameter_list):
+        for i in range(len(parameter_list)):
+            if parameter_list[i] == 'locations and orientations':
+                self.set_random_locations_orientations()
+            elif parameter_list[i] == 'amplitudes':
+                self.set_random_locations_magnitudes()
+            elif parameter_list[i] == 'generator variance':
+                self.set_random_variability_generators()
+            elif parameter_list[i] == 'generator covariance':
+                self.set_random_variability_connections()
+            elif parameter_list[i] == 'electrode variance':
+                self.set_random_variability_electrodes()
+
+        self.up_to_date['lead field'] = False
+        self.up_to_date['mean'] = False
+        self.up_to_date['covariance generators'] = False
+        self.up_to_date['covariance'] = False
+
+
     def set_parameters(self, parameter_list, parameters):
         """Allowed parameter_list arguments:
         
