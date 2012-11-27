@@ -4,7 +4,7 @@ sys.path.insert(0, 'briskbrain-code/src')
 
 from numpy import mean, cov
 
-from dataimport import avg_txt_import, SPSS_query
+from data_import import avg_txt_import, SPSS_query
 
 
 def rereference_to_average(data):
