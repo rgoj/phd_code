@@ -99,6 +99,12 @@ class ERP_Variability_Model():
         self.n_gen = len(gen_conf)
 
 
+    def set_random(self):
+        self.set_random_locations_orientations()
+        self.set_random_magnitudes()
+        self.set_random_variability()
+
+
     def set_random_locations_orientations(self):
         self.gen_conf = random_generator_placement(self.limits)
         self.up_to_date['lead field'] = False
@@ -115,6 +121,11 @@ class ERP_Variability_Model():
 
 
     def set_random_variability(self):
+        self.set_random_variability_electrodes()
+        self.set_random_variability_generators()
+        self.set_random_variability_connections()
+    
+    def set_random_variability_electrodes(self):
         limits = self.limits['electrode_variance']
         if self.variability_electrodes == 'none':
             self.sigma_e = 0
@@ -125,6 +136,7 @@ class ERP_Variability_Model():
             for i in range(self.n_el):
                 self.sigma_e.append(limits[0] + uniform(limits[1] - limits[0]))
         
+    def set_random_variability_generators(self):
         limits = self.limits['generator_variance']
         if self.variability_generators == 'none':
             self.sigma_g = 0
@@ -135,6 +147,7 @@ class ERP_Variability_Model():
             for i in range(self.n_gen):
                 self.sigma_g.append(limits[0] + uniform(limits[1] - limits[0]))
         
+    def set_random_variability_connections(self):
         if self.variability_connections == 'none':
             self.sigma_c = None
         elif self.variability_connections == 'individual':
