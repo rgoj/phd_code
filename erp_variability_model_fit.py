@@ -44,11 +44,6 @@ class ERP_Variability_Model_Fit(ERP_Variability_Model):
             elif parameter_list[i] == 'electrode variance':
                 self.set_random_variability_electrodes()
 
-        self.up_to_date['lead field'] = False
-        self.up_to_date['mean'] = False
-        self.up_to_date['covariance generators'] = False
-        self.up_to_date['covariance'] = False
-
 
     def set_parameters(self, parameter_list, parameters):
         """Allowed parameter_list arguments:
