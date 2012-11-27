@@ -31,7 +31,8 @@ def random_generator_placement(limits={'n_gen':(1,5),'depth':(4.49,7.05),
                                              limits['orientation'][1])
         gen_conf[i]['orientation_phi'] = uniform(limits['orientation_phi'][0],
                                                  limits['orientation_phi'][1])
-    
+        gen_conf[i]['magnitude'] = 0
+
     return gen_conf
 
 
