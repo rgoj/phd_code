@@ -1,8 +1,15 @@
-from numpy import pi, dot, zeros, ndarray, transpose, identity, sqrt
+import sys
+sys.path.insert(0, 'old/scalingproject')
+sys.path.insert(0, 'util')
+
+from numpy import pi, dot, zeros, ndarray, transpose, identity, sqrt, newaxis
 from numpy.random import multivariate_normal, uniform
+from matplotlib import pyplot
 
 from lead_field import Lead_Field
 from generator_configuration import random_generator_placement
+from topographicmap import plot_topographic_map, plot_topographic_map_array
+from variability_visualization import plot_covariance_matrix
 
 
 #TODO sigma should be sigma_sq_ throghout, or var, because it's variance, so
@@ -56,6 +63,45 @@ class ERP_Variability_Model():
                 plot_topographic_map((self.gen_conf[gen]['magnitude'] *
                                       self.lf.calculate(
                                       [self.gen_conf[gen]]))[:,0])
+    
+
+    def plot_model(self, to_plot):
+        for one_plot in to_plot:
+            if one_plot == 'mean':
+                plot_topographic_map(self.mean)
+                pyplot.title('Topographic map of mean')
+                
+                # Individual generator means
+                pyplot.figure()
+                for i in range(self.n_gen):
+                    pyplot.subplot(1,self.n_gen,i)
+                    plot_topographic_map(self.mean)
+                pyplot.figtext(0.5, 0.75, 'Topographic maps of means of each generator',
+                               ha='center')
+                
+            if one_plot == 'variance':
+                pyplot.figure()
+                plot_topographic_map(self.cov.diagonal())
+                pyplot.title('Topographic map of variance')
+                
+                # Individual generator variances
+                pyplot.figure()
+                for i in range(self.n_gen):
+                    pyplot.subplot(1,self.n_gen,i)
+                    single_cov = dot(transpose(self.lead_field[:,i][newaxis]),
+                                     self.lead_field[:,i][newaxis])
+                    if self.variability_generators == 'constant':
+                        single_cov = self.sigma_g * single_cov
+                    elif self.variability_generators == 'individual':
+                        single_cov = self.sigma_g[i] * single_cov
+                    plot_topographic_map(single_cov.diagonal())
+                pyplot.figtext(0.5, 0.75, 'Topographic maps of variance of each generator',
+                               ha='center')
+
+            if one_plot == 'covariance matrix':
+                pyplot.figure()
+                plot_covariance_matrix(self.data,self.cov)
+                pyplot.title('Covariance matrix')
 
 
     def set_parameter_limits(self):
