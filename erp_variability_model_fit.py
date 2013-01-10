@@ -211,6 +211,29 @@ def error_cov(cov_data, erp_model, parameter_list, parameters):
     return error
 
 
+def error_mean_and_cov(mean_data, cov_data, erp_model, parameter_list, 
+                       parameters):
+    """
+    The errors in estimations of data mean and covariance are both normalized
+    by dividing by the norm of the data mean and covariance respectively and
+    added to result in an error that is a combination of mean and covariance
+    errors.
+    """
+    erp_model.set_parameters(parameter_list, parameters)
+    erp_model.calculate_mean()
+    erp_model.calculate_cov()
+    
+    error_mean = mean_data - erp_model.mean
+    error_mean = norm(error_mean, 2)
+    error_cov = cov_data - erp_model.cov
+    error_cov = norm(error_cov.reshape((erp_model.n_el**2,1)), 2)
+    
+    error = error_mean / norm(mean_data, 2)
+    error += error_cov / norm(cov_data.reshape((erp_model.n_el**2,1)), 2)
+    
+    return error
+
+
 def fit_variability_model(erp_model, parameter_list, fit_to, fit_data,
                           method='tnc', bounds=True, max_fun_eval=100, 
                           disp=True):
@@ -220,6 +243,11 @@ def fit_variability_model(erp_model, parameter_list, fit_to, fit_data,
     if fit_to == 'covariance':
         fn = lambda parameters: error_cov(fit_data, erp_model, parameter_list,
                                           parameters)
+
+    if fit_to == 'mean and covariance':
+        fn = lambda parameters: error_mean_and_cov(fit_data[0], fit_data[1], 
+                                                   erp_model, parameter_list,
+                                                   parameters)
     
     if bounds:
         parameter_bounds = erp_model.get_bounds(parameter_list)
