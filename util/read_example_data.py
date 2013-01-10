@@ -43,6 +43,7 @@ def read_example_data():
                          
     rereference_to_average(data)
 
+    mean_data = mean(data,0)
     cov_data = cov(data.transpose())
 
-    return [data, cov_data]
+    return [data, mean_data, cov_data]

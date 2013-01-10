@@ -36,7 +36,7 @@ class ERP_Variability_Model_Fit(ERP_Variability_Model):
             if parameter_list[i] == 'locations and orientations':
                 self.set_random_locations_orientations()
             elif parameter_list[i] == 'amplitudes':
-                self.set_random_locations_magnitudes()
+                self.set_random_magnitudes()
             elif parameter_list[i] == 'generator variance':
                 self.set_random_variability_generators()
             elif parameter_list[i] == 'generator covariance':
@@ -195,6 +195,14 @@ class ERP_Variability_Model_Fit(ERP_Variability_Model):
         return bounds
 
 
+def error_mean(mean_data, erp_model, parameter_list, parameters):
+    erp_model.set_parameters(parameter_list, parameters)
+    erp_model.calculate_mean()
+    error = mean_data - erp_model.mean
+    error = norm(error, 2)
+    return error
+
+
 def error_cov(cov_data, erp_model, parameter_list, parameters):
     erp_model.set_parameters(parameter_list, parameters)
     erp_model.calculate_cov()
@@ -206,6 +214,9 @@ def error_cov(cov_data, erp_model, parameter_list, parameters):
 def fit_variability_model(erp_model, parameter_list, fit_to, fit_data,
                           method='tnc', bounds=True, max_fun_eval=100, 
                           disp=True):
+    if fit_to == 'mean':
+        fn = lambda parameters: error_mean(fit_data, erp_model, parameter_list,
+                                          parameters)
     if fit_to == 'covariance':
         fn = lambda parameters: error_cov(fit_data, erp_model, parameter_list,
                                           parameters)
@@ -217,20 +228,20 @@ def fit_variability_model(erp_model, parameter_list, fit_to, fit_data,
     
     initial_parameters = erp_model.get_parameters(parameter_list)
     start_error = fn(initial_parameters)
-    if disp: print('Starting error: ' + str(start_error))
+    if disp: print('* Starting error: ' + str(start_error))
 
     if method == 'tnc':
         output = optimize.fmin_tnc(fn, initial_parameters,
                                    bounds=parameter_bounds,
                                    maxfun=max_fun_eval, disp=5,
                                    approx_grad=True)
-        if disp: print('After ' + str(output[1]) + ' iterations, the TNC ' + \
+        if disp: print('* After ' + str(output[1]) + ' iterations, the TNC ' +\
                        'algorithm returned: ' +\
                        optimize.tnc.RCSTRINGS[output[2]])
     
     erp_model.recalculate_model()
     
     end_error = fn(erp_model.get_parameters(parameter_list))
-    if disp: print('Final error: ' + str(end_error))
+    if disp: print('* Final error: ' + str(end_error))
     
     return [output, start_error, end_error]

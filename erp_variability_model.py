@@ -114,7 +114,7 @@ class ERP_Variability_Model():
         self.limits['orientation'] = (0, pi/2) # cortex
         self.limits['orientation_phi'] = (0,2*pi)
         # Magnitude
-        self.limits['magnitude'] = (1, 10000000)
+        self.limits['magnitude'] = (0, 1000)
         # Variability
         self.limits['generator_variance'] = [0, 1000000]
         self.limits['electrode_variance'] = [0, 20]
@@ -163,9 +163,9 @@ class ERP_Variability_Model():
 
 
     def set_random_magnitudes(self):
-        # TODO
+        limits = self.limits['magnitude']
         for i in range(self.n_gen):
-            self.gen_conf[i]['magnitude'] = 0
+            self.gen_conf[i]['magnitude'] = limits[0] + uniform(limits[1] - limits[0])
         self.up_to_date['mean'] = False
 
 
