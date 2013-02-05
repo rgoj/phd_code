@@ -9,7 +9,6 @@ from scipy import optimize
 from numpy import random
 from numpy.linalg import norm
 
-from read_example_data import read_example_data
 from erp_variability_model_fit import ERP_Variability_Model_Fit,\
                                       fit_variability_model, error_mean,\
                                       error_cov, error_mean_and_cov
