@@ -1,3 +1,4 @@
+from string import join
 import sys
 sys.path.insert(0, 'briskbrain-code/scalingproject')
 sys.path.insert(0, 'briskbrain-code/src')
@@ -14,7 +15,8 @@ def rereference_to_average(data):
     return data
 
 
-def read_danieles_data(nonEEG_electrodes=False, average_reference=True):
+def read_danieles_data(nonEEG_electrodes=False, average_reference=True,
+                       time_window=True):
     data_path = '/home/stuff/projects/data/2012 Daniele ERPs (converted in ' +\
                 'EEGLAB)/'
 
@@ -53,11 +55,22 @@ def read_danieles_data(nonEEG_electrodes=False, average_reference=True):
             path_paradigm = 'N400 Final EEG Files Stirling/'
             condition_1 = ('unrelated', 'signal_unrelated')
             condition_2 = ('related', 'signal_related')
+
+        if time_window is False:
+            cond = condition_1[1].split('_')
+            cond.insert(1,'eeg')
+            condition_1 = (condition_1[0], join(cond,'_'))
+            cond = condition_2[1].split('_')
+            cond.insert(1,'eeg')
+            condition_2 = (condition_2[0], join(cond,'_'))
         
         subject_averages = {condition_1[0]: [], condition_2[0]: []}
 
         for subject in subjects:
-            file_name =  'time_window_averages_subject_' + str(subject) + '.mat'
+            if time_window is True:
+                file_name =  'time_window_averages_subject_' + str(subject) + '.mat'
+            else:
+                file_name =  'full_eeg_subject_' + str(subject) + '.mat'
             
             mat_file = loadmat(data_path + path_paradigm + file_name)
             
@@ -77,29 +90,28 @@ def read_danieles_data(nonEEG_electrodes=False, average_reference=True):
                 accepted_electrodes.remove(electrodes.index('M2'))
                 accepted_electrodes.remove(electrodes.index('HEO'))
                 accepted_electrodes.remove(electrodes.index('VEO'))
-
-            if average_reference is True:
-                ERPs[paradigm]['within subject'][subject][condition_1[0]] =\
-                        rereference_to_average(mat_file[condition_1[1]][accepted_electrodes,:].T)
-                ERPs[paradigm]['within subject'][subject][condition_2[0]] =\
-                        rereference_to_average(mat_file[condition_2[1]][accepted_electrodes,:].T)
-            else:
-                print('WARNING: Not rereferencing to average!')
-                ERPs[paradigm]['within subject'][subject][condition_1[0]] =\
-                        mat_file[condition_1[1]][accepted_electrodes,:].T
-                ERPs[paradigm]['within subject'][subject][condition_2[0]] =\
-                        mat_file[condition_2[1]][accepted_electrodes,:].T
             
-            subject_averages[condition_1[0]].append(\
-                    mean(ERPs[paradigm]['within subject'][subject][condition_1[0]],0))
-            subject_averages[condition_2[0]].append(\
-                    mean(ERPs[paradigm]['within subject'][subject][condition_2[0]],0))
-        
-        ERPs[paradigm]['across subjects'][condition_1[0]] =\
-                array(subject_averages[condition_1[0]])
-        ERPs[paradigm]['across subjects'][condition_2[0]] =\
-                array(subject_averages[condition_2[0]])
-    
+            for cond_name in [condition_1,condition_2]:
+                if time_window is True:
+                    signal = mat_file[cond_name[1]][accepted_electrodes,:].T
+                    if average_reference is True:
+                        signal = rereference_to_average(signal)
+                    else:
+                        print('WARNING: Not rereferencing to average!')
+                else:
+                    print('WARNING: Not rereferencing to average!')
+                    signal = mat_file[cond_name[1]][accepted_electrodes,:,:]
+                
+                ERPs[paradigm]['within subject'][subject][cond_name[0]] = signal
+                if time_window is True:
+                    subject_averages[cond_name[0]].append(mean(signal,0))
+                else:
+                    subject_averages[cond_name[0]].append(mean(signal,2))
+                
+        for cond_name in [condition_1,condition_2]:
+            ERPs[paradigm]['across subjects'][cond_name[0]] =\
+                    array(subject_averages[cond_name[0]])
+
     final_electrodes = []
     for [i, electrode] in zip(range(len(electrodes)), electrodes):
         if i in accepted_electrodes:
