@@ -1,4 +1,4 @@
-# Roman Goj
+#Roman Goj
 # 23/11/2010
 """
 This module contains functions for importing data from Neuroscan AVG files and
@@ -9,8 +9,14 @@ import csv
 from numpy import array, mean
 
 
-def avg_txt_import(filename):
-    """Reads in an ERP average exported to a text file by Neuroscan.
+def avg_txt_import(filename, electrodes=True):
+    """Reads in an ERP average exported to a text file by Neuroscan. If the
+    text files contains labels, set the electrodes parameter to True, if not
+    set it to False. Unfortunately this doesn't read in headers. Also if the
+    electrodes were exported with square brackets ('[' ']'), reading in the
+    electrodes will fail and the electrodes will need to be removed from the
+    .avg file. So this function may or may not work for a particular exported
+    avg file.
 
     """
     reader = csv.reader(open(filename, "rb"), dialect='excel-tab')
@@ -19,7 +25,7 @@ def avg_txt_import(filename):
     channels = []
 
     for row in reader:
-        if reader.line_num == 1:
+        if electrodes and reader.line_num == 1:
             for entry in row:
                 if entry.strip() != '':
                     channels.append(entry.strip())
@@ -27,11 +33,16 @@ def avg_txt_import(filename):
         else:
             ichannel = 0
             for entry in row:
+                if electrodes is False and reader.line_num ==1:
+                    data.append([])
                 if entry !='':
                     data[ichannel].append(float(entry))
                     ichannel += 1
+
+    if electrodes is False:
+        data.pop()
     
-    return [data, channels]
+    return [array(data).T, channels]
 
 
 def SPSS_import(filename):
