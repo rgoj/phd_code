@@ -202,19 +202,19 @@ def plot_mean_vs_variance(data):
     
     handle = pyplot.gca()
 
-    fitfunc = lambda p, x: p[0]*x + p[1]
-    errfunc = lambda p, x, y: fitfunc(p, x) - y
+    #fitfunc = lambda p, x: p[0]*x + p[1]
+    #errfunc = lambda p, x, y: fitfunc(p, x) - y
     
-    p0 = [1,1]
-    p1, success = optimize.leastsq(errfunc, p0[:], args=(mean(data,0),
+    #p0 = [1,1]
+    #p1, success = optimize.leastsq(errfunc, p0[:], args=(mean(data,0),
                                    var(data,0)))
 
-    [coeff, pvalue] = pearsonr(mean(data,0),var(data,0))
+    #[coeff, pvalue] = pearsonr(mean(data,0),var(data,0))
     
-    pyplot.plot(mean(data,0), fitfunc(p1,mean(data,0)),'r-')
+    #pyplot.plot(mean(data,0), fitfunc(p1,mean(data,0)),'r-')
     
-    print("    Mean and variance correlation coefficient: " + str(coeff) + \
-          ", p value: " + str(pvalue) )
+    #print("    Mean and variance correlation coefficient: " + str(coeff) + \
+    #      ", p value: " + str(pvalue) )
 
     return handle
 
