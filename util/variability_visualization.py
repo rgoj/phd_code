@@ -40,7 +40,7 @@ def plot_covariance_matrix(data, cov_data):
 
 
 def plot_variogram(data, cov_data, data_bg=None, cov_data_bg=None,
-                   norm='normalized', binned='False', color='b'):
+                   norm='normalized', binned=False, color='b'):
     # Correlation (across subjects) between electrodes depending on distance
     # between the electrodes
     electrode_correlations = []
@@ -72,11 +72,11 @@ def plot_variogram(data, cov_data, data_bg=None, cov_data_bg=None,
                             + square(pos_y[electrode1] - pos_y[electrode2]))
             electrode_distances.append(distance)
 
-    if binned == False:
+    if binned is False:
         if data_bg != None:
             pyplot.plot(electrode_distances, electrode_correlations_bg, 'b.')
         pyplot.plot(electrode_distances, electrode_correlations, color+'.')
-    if binned == True:
+    elif binned is True:
         (numbers,bins) = histogram(electrode_distances,20)
         corr_means = []
         corr_sems = []
@@ -207,7 +207,7 @@ def plot_mean_vs_variance(data):
     
     #p0 = [1,1]
     #p1, success = optimize.leastsq(errfunc, p0[:], args=(mean(data,0),
-                                   var(data,0)))
+    #                              var(data,0)))
 
     #[coeff, pvalue] = pearsonr(mean(data,0),var(data,0))
     
