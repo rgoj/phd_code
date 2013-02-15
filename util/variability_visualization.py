@@ -233,4 +233,4 @@ def quick_variability_plots(data, cov_data=None):
     plot_variogram(data,cov_data, 'unnormalized')
     pyplot.subplot(2,2,4)
     #pyplot.figure()
-    foo = pyplot.hist(cov_data.reshape((62*62,1)),20)
+    foo = pyplot.hist(cov_data.reshape((60*60,1)),20)

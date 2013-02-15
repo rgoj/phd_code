@@ -45,7 +45,7 @@ class ERP_Model():
 
         self.n_gen = n_gen
         self.n_sub = n_sub
-        self.n_el = 62
+        self.n_el = 60
         
         self.lf = Lead_Field()
 

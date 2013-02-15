@@ -22,7 +22,7 @@ class ERP_Variability_Model():
                  variability_connections='none'):
         self.n_gen = n_gen # generators
         self.n_sub = n_sub # subjects
-        self.n_el = 62 # Hard-coded to use a specific electrode set
+        self.n_el = 60 # Hard-coded to use a specific electrode set
         
         self.up_to_date = {}
         self.set_parameter_limits()

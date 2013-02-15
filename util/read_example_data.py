@@ -15,6 +15,21 @@ def rereference_to_average(data):
     return data
 
 
+def generate_accepted_electrodes(electrodes, electrodes_to_remove):
+    # Remove these electrodes:
+    # ['M1', 'M2', 'HEO', 'VEO', 'CB1', 'CB2']
+    accepted_electrodes = range(len(electrodes))
+    for el in electrodes_to_remove:
+        accepted_electrodes.remove(electrodes.index(el))
+    
+    final_electrodes = []
+    for [i, electrode] in zip(range(len(electrodes)), electrodes):
+        if i in accepted_electrodes:
+            final_electrodes.append(electrode)
+
+    return [accepted_electrodes, final_electrodes]
+
+
 def read_danieles_data(nonEEG_electrodes=False, average_reference=True,
                        time_window=True):
     data_path = '/home/stuff/projects/data/2012 Daniele ERPs (converted in ' +\
@@ -85,11 +100,9 @@ def read_danieles_data(nonEEG_electrodes=False, average_reference=True,
             if nonEEG_electrodes is True:
                 accepted_electrodes = range(len(electrodes))
             else:
-                accepted_electrodes = range(len(electrodes))
-                accepted_electrodes.remove(electrodes.index('M1'))
-                accepted_electrodes.remove(electrodes.index('M2'))
-                accepted_electrodes.remove(electrodes.index('HEO'))
-                accepted_electrodes.remove(electrodes.index('VEO'))
+                [accepted_electrodes, final_electrodes] = \
+                        generate_accepted_electrodes(electrodes, \
+                        ['M1', 'M2', 'HEO', 'VEO', 'CB1', 'CB2'])
             
             for cond_name in [condition_1,condition_2]:
                 if time_window is True:
@@ -111,11 +124,6 @@ def read_danieles_data(nonEEG_electrodes=False, average_reference=True,
         for cond_name in [condition_1,condition_2]:
             ERPs[paradigm]['across subjects'][cond_name[0]] =\
                     array(subject_averages[cond_name[0]])
-
-    final_electrodes = []
-    for [i, electrode] in zip(range(len(electrodes)), electrodes):
-        if i in accepted_electrodes:
-            final_electrodes.append(electrode)
 
     return [ERPs, final_electrodes, subjects]
 
@@ -148,11 +156,17 @@ def read_brittanys_data():
                 SPSS_query(file_SPSS_baseline, condition='12')
 
     data = ERP_area['new']['300-500']
+    
+    electrodes = electrodes_read_area[2]
+    [accepted_electrodes, final_electrodes] = \
+            generate_accepted_electrodes(electrodes, \
+            ['CB1', 'CB2'])
+    
+    data = data[:,accepted_electrodes]
+
     rereference_to_average(data)
 
     mean_data = mean(data,0)
     cov_data = cov(data.transpose())
 
-    electrodes = electrodes_read_area[2]
-
-    return [data, mean_data, cov_data, electrodes]
+    return [data, mean_data, cov_data, final_electrodes]

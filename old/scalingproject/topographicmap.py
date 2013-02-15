@@ -96,8 +96,8 @@ def plot_topographic_map(values, scale=0, plot_legend=True, ax=None):
     # The number_of_points variable severely effects the speed of the 
     # computation, choose value of 50 to get fast speed and value of 300 to 
     # get a decent topographic map.
-    #number_of_points = 300
-    number_of_points = 100
+    number_of_points = 300
+    #number_of_points = 100
     #number_of_points = 50
     grid_x = linspace(-1.03, 1.03, number_of_points)
     grid_y = linspace(-1.03, 1.03, number_of_points)
@@ -143,7 +143,7 @@ def plot_topographic_map(values, scale=0, plot_legend=True, ax=None):
         ax.get_figure().colorbar(img, ax=ax, shrink=0.7)
     
     # Electrodes as black dots
-    ax.scatter(electrode_x[0:62], electrode_y[0:62], marker='o', c='b', s=1,
+    ax.scatter(electrode_x[0:len(electrodes)], electrode_y[0:len(electrodes)], marker='o', c='b', s=1,
                 facecolor='black')
     ax.set_xlim(-1.04, 1.04)
     ax.set_ylim(-1.04, 1.04)
